@@ -16,6 +16,19 @@
         opencv:layout_constraintStart_toStartOf="parent"
         opencv:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/CaptureButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="translate"
+        android:text="Translate" />
+
+    <ImageView
+        android:id="@+id/CapturedImageView"
+        android:layout_width="1440px"
+        android:layout_height="1920px"
+        android:background="@android:color/darker_gray" />
+
     <!-- show fps and camera id removed -->
 
 </LinearLayout>

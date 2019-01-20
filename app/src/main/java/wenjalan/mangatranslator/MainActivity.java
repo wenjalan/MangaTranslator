@@ -3,6 +3,7 @@ package wenjalan.mangatranslator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Picture;
 import android.hardware.Camera;
 import android.net.Uri;
@@ -63,10 +64,13 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 Log.d(TAG, "Error accessing file!");
             }
-            Log.d(TAG, "Capture success: " + filepath);
 
             // write the cropped image
             Bitmap cropped = cropImage(filepath);
+
+            // rotate it
+            cropped = rotateBitmap(cropped, 90);
+
             // write it
             try {
                 FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -75,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            Log.d(TAG, "Wrote image to " + filepath);
             camera.startPreview();
         }
     };
@@ -192,6 +196,12 @@ public class MainActivity extends AppCompatActivity {
         Bitmap cropped = Bitmap.createBitmap(bitmap, x, y, cropWidth, cropHeight);
 
         return cropped;
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
+        Matrix mat = new Matrix();
+        mat.postRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
     }
 
     /* from tutorial */

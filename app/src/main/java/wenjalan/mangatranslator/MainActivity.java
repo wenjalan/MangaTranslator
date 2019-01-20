@@ -1,17 +1,10 @@
 package wenjalan.mangatranslator;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.Picture;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -24,31 +17,66 @@ public class MainActivity extends AppCompatActivity {
     public static final float VF_2_SCREEN_X = 0.5f;
     public static final float VF_2_SCREEN_Y = 0.5f;
 
+    // the camera
+    Camera camera;
+
     // the tag
     public static final String TAG = "MT-Main";
 
     // the camera manager
     private CameraManager cameraManager;
+    private CameraPreview cameraPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // init
-        this.cameraManager = new CameraManager(this).init();
+        // initialize camera
+        initCamera();
 
-        // create the preview
-        CameraPreview cameraPreview = new CameraPreview(this, cameraManager.getCamera());
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(cameraPreview);
-        cameraManager.setCameraPreview(cameraPreview);
+        // init capture button
+        initCaptureButton();
 
-        // set the capture button listener
-        Button captureButton = findViewById(R.id.button_capture);
-        cameraManager.setCaptureButton(captureButton);
+        // init view finder
+        initViewfinder();
     }
 
+    // camera init
+    private void initCamera() {
+        // init manager
+        cameraManager = new CameraManager(this);
+
+        // open the camera
+        camera = cameraManager.getCamera();
+
+        // set the camera to portrait
+        camera.setDisplayOrientation(90);
+
+        // enable auto focus
+        Camera.Parameters par = camera.getParameters();
+        par.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        camera.setParameters(par);
+
+        // create the preview
+        cameraPreview = new CameraPreview(this, camera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(cameraPreview);
+    }
+
+    // capture button
+    private void initCaptureButton() {
+        // set the capture button listener
+        Button captureButton = findViewById(R.id.button_capture);
+        captureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                camera.takePicture(null, null, cameraManager.getPictureCallback());
+            }
+        });
+    }
+
+    // init viewfinder
     private void initViewfinder() {
         // size the viewfinder box
         final View viewfinder = findViewById(R.id.box);
@@ -71,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        cameraManager.init();
+        initCamera();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        cameraManager.release();
+        initCamera();
     }
 
     @Override

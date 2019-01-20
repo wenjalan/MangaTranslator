@@ -31,7 +31,6 @@ public class CameraManager {
     private final Context context;
 
     private Camera camera = null;
-    private CameraPreview cameraPreview;
 
     // picture callback
     private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
@@ -79,11 +78,7 @@ public class CameraManager {
     // constructor
     public CameraManager(Context context) {
         this.context = context;
-    }
-
-    public CameraManager init() {
         initCamera();
-        return this;
     }
 
     public void release() {
@@ -113,11 +108,7 @@ public class CameraManager {
         });
     }
 
-    public void setCameraPreview(CameraPreview preview) {
-        this.cameraPreview = preview;
-    }
-
-    public static Camera getCameraInstance() {
+    public Camera getCameraInstance() {
         Camera cam = null;
         try {
             cam = Camera.open();
@@ -203,5 +194,9 @@ public class CameraManager {
 
     public Camera getCamera() {
         return camera;
+    }
+
+    public Camera.PictureCallback getPictureCallback() {
+        return pictureCallback;
     }
 }

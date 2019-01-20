@@ -27,6 +27,7 @@ import static wenjalan.mangatranslator.MainActivity.VF_2_SCREEN_Y;
 public class CameraManager {
 
     public static final String TAG = "MT-CameraManager";
+    public static final String IMAGE_NAME = "capture.jpg";
 
     private final Context context;
 
@@ -153,10 +154,10 @@ public class CameraManager {
     }
 
     /* from tutorial */
-    /** Create a file Uri for saving an image or video */
-    private static Uri getOutputMediaFileUri(int type){
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
+//    /** Create a file Uri for saving an image or video */
+//    private static Uri getOutputMediaFileUri(int type){
+//        return Uri.fromFile(getOutputMediaFile(type));
+//    }
 
     /** Create a File for saving an image or video */
     private static File getOutputMediaFile(int type){
@@ -180,8 +181,10 @@ public class CameraManager {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE){
+//            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+//                    "IMG_"+ timeStamp + ".jpg");
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_"+ timeStamp + ".jpg");
+                    IMAGE_NAME);
         } else if(type == MEDIA_TYPE_VIDEO) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                     "VID_"+ timeStamp + ".mp4");

@@ -1,12 +1,19 @@
 package wenjalan.mangatranslator;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Picture;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
@@ -22,9 +29,16 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 
 public class MainActivity extends AppCompatActivity {
 
+    // viewfinder size scale
+    public static final float VF_2_SCREEN_X = 0.5f;
+    public static final float VF_2_SCREEN_Y = 0.5f;
+
     // the instance of Camera
     static Camera camera = null;
     private CameraPreview cameraPreview;
+
+    // the tag
+    public static final String TAG = "MangaTranslator-Main";
 
     // picture callback
     private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
@@ -50,18 +64,82 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Error accessing file!");
             }
             Log.d(TAG, "Capture success: " + filepath);
+
+            // write the cropped image
+            Bitmap cropped = cropImage(filepath);
+            // write it
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                cropped.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             camera.startPreview();
         }
     };
-
-    // the tag
-    public static final String TAG = "MangaTranslator-Main";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // initialize camera
+        initCamera();
+
+        // set the capture button listener
+        Button captureButton = findViewById(R.id.button_capture);
+        captureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                camera.takePicture(null, null, pictureCallback);
+            }
+        });
+
+        // size the viewfinder box
+        final View viewfinder = findViewById(R.id.box);
+
+        // get the dimensions after they've been laid out
+        viewfinder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                View container = (View) viewfinder.getParent().getParent();
+                int containerHeight = container.getHeight();
+                int containerWidth = container.getWidth();
+                ViewGroup.LayoutParams params = viewfinder.getLayoutParams();
+                params.height = (int) (containerHeight * VF_2_SCREEN_Y);
+                params.width = (int) (containerWidth * VF_2_SCREEN_X);
+                viewfinder.requestLayout();
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initCamera();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releaseCamera();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseCamera();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void initCamera() {
         // open the camera
         camera = getCameraInstance();
 
@@ -77,15 +155,6 @@ public class MainActivity extends AppCompatActivity {
         cameraPreview = new CameraPreview(this, camera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(cameraPreview);
-
-        // set the button listener
-        Button captureButton = findViewById(R.id.button_capture);
-        captureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                camera.takePicture(null, null, pictureCallback);
-            }
-        });
     }
 
     public static Camera getCameraInstance() {
@@ -99,29 +168,30 @@ public class MainActivity extends AppCompatActivity {
         return cam;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        camera.startPreview();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        releaseCamera();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        releaseCamera();
-    }
-
     private void releaseCamera() {
         if (camera != null) {
             camera.release();
             camera = null;
         }
+    }
+
+    private Bitmap cropImage(String filepath) {
+        // log
+        Log.d(TAG, "Cropping image...");
+
+        Bitmap bitmap = BitmapFactory.decodeFile(filepath);
+        int height = bitmap.getHeight();
+        int width = bitmap.getWidth();
+        // calculate corner
+        // center of image - half of the size of the box
+        int cropWidth = (int) (width * VF_2_SCREEN_X);
+        int cropHeight = (int) (height * VF_2_SCREEN_Y);
+        int x = (int) ((width / 2) - (cropWidth / 2));
+        int y = (int) ((height / 2) - (cropHeight / 2));
+
+        Bitmap cropped = Bitmap.createBitmap(bitmap, x, y, cropWidth, cropHeight);
+
+        return cropped;
     }
 
     /* from tutorial */

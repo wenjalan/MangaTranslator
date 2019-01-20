@@ -1,142 +1,127 @@
 package wenjalan.mangatranslator;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
+import android.content.Intent;
+import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.SurfaceView;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
+    // viewfinder size scale
+    public static final float VF_2_SCREEN_X = 0.5f;
+    public static final float VF_2_SCREEN_Y = 0.5f;
 
-    private static final String TAG = "MangaTranslator";
-    private CameraBridgeViewBase mOpenCvCameraView;
+    // the camera
+    Camera camera;
 
-    static {
-        if (OpenCVLoader.initDebug()) {
-            Log.d(TAG, "OpenCV initialized successfully");
-        }
-        else {
-            Log.d(TAG, "OpenCV failed to initialize");
-        }
-    }
+    // the tag
+    public static final String TAG = "MT-Main";
+
+    // the camera manager
+    private CameraManager cameraManager;
+    private CameraPreview cameraPreview;
 
     @Override
-    public void onResume()
-    {
-        super.onResume();
-        // OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_4_1_0, this, mLoaderCallback);
-        OpenCVLoader.initDebug();
-        mOpenCvCameraView.enableView();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "called onCreate");
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.MainCameraView);
-        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-        mOpenCvCameraView.setCvCameraViewListener(this);
 
-        // turn on the camera
-        mOpenCvCameraView.enableView();
+        // initialize camera
+        initCamera();
+
+        // init capture button
+        initCaptureButton();
+
+        // init view finder
+        initViewfinder();
     }
 
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-        if (mOpenCvCameraView != null)
-            mOpenCvCameraView.disableView();
+    // camera init
+    private void initCamera() {
+        // init manager
+        cameraManager = new CameraManager(this);
+
+        // open the camera
+        camera = cameraManager.getCamera();
+
+        // set the camera to portrait
+        camera.setDisplayOrientation(90);
+
+        // enable auto focus
+        Camera.Parameters par = camera.getParameters();
+        par.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        camera.setParameters(par);
+
+        // create the preview
+        cameraPreview = new CameraPreview(this, camera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(cameraPreview);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mOpenCvCameraView != null)
-            mOpenCvCameraView.disableView();
-    }
-
-    @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        // Log.d(TAG, "Got a frame");
-        Mat mRgba = inputFrame.rgba();
-
-        // convert to grayscale
-        Imgproc.cvtColor(mRgba, mRgba, Imgproc.COLOR_RGB2GRAY, 0);
-
-        int viewFinderHeight = 300;
-        int viewFinderWidth = 500;
-
-        int height = mRgba.height();
-        int width = mRgba.width();
-
-        int corner1 = width / 2 - (viewFinderWidth / 2);
-        int corner2 = height / 2 - (viewFinderHeight / 2);
-
-        Rect rect = new Rect(corner1, corner2, viewFinderWidth, viewFinderHeight);
-
-        // white
-        Scalar color = new Scalar(255, 255, 255, 100);
-
-        // draw the rectangle
-        Imgproc.rectangle(mRgba, rect, color, 5);
-
-        // save this as last frame
-        mRgba.copyTo(lastFrame);
-
-        // return the mat
-        return mRgba;
-    }
-
-    Mat lastFrame = new Mat();
-
-    @Override
-    public void onCameraViewStarted(int width, int height) {}
-
-    @Override
-    public void onCameraViewStopped() { }
-
-    // called by TranslateButton
-    public void translate(View view) {
-        // create an image of the last frame
-//        Imgcodecs.imwrite("image.png", lastFrame);
-//        Log.d(TAG, "Wrote an image");
-
-        // find the imageview to display to
-        final ImageView imageView = findViewById(R.id.CapturedImageView);
-
-        // display the image
-        // Mat imgMat = Imgcodecs.imread("image.png");
-        // Mat mat = lastFrame;
-        Mat mat = Mat.zeros(1440, 1920, CvType.CV_8UC3);
-        Imgproc.putText(mat, "Hello world!", new Point(10, 10), Imgproc.FONT_HERSHEY_SCRIPT_SIMPLEX, 2, new Scalar(200, 200, 200, 0), 2);
-        final Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-        Utils.bitmapToMat(bmp, mat);
-
-        Log.d(TAG, "Displaying image...");
-        // run on main app thread
-        runOnUiThread(new Runnable() {
+    // capture button
+    private void initCaptureButton() {
+        // set the capture button listener
+        Button captureButton = findViewById(R.id.button_capture);
+        captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                imageView.setImageBitmap(bmp);
+            public void onClick(View v) {
+                camera.takePicture(null, null, cameraManager.getPictureCallback());
             }
         });
     }
 
+    // init viewfinder
+    private void initViewfinder() {
+        // size the viewfinder box
+        final View viewfinder = findViewById(R.id.box);
+
+        // get the dimensions after they've been laid out
+        viewfinder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                View container = (View) viewfinder.getParent().getParent();
+                int containerHeight = container.getHeight();
+                int containerWidth = container.getWidth();
+                ViewGroup.LayoutParams params = viewfinder.getLayoutParams();
+                params.height = (int) (containerHeight * VF_2_SCREEN_Y);
+                params.width = (int) (containerWidth * VF_2_SCREEN_X);
+                viewfinder.requestLayout();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initCamera();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        initCamera();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cameraManager.release();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        cameraManager.release();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

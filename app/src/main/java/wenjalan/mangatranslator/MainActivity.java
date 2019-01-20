@@ -100,6 +100,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        camera.startPreview();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         releaseCamera();

@@ -10,6 +10,8 @@ import java.io.IOException;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
+    private static final String TAG = "MT-CameraPreview";
+
     private SurfaceHolder holder;
     private Camera camera;
 
@@ -28,7 +30,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             camera.setPreviewDisplay(surfaceHolder);
             camera.startPreview();
         } catch (IOException e) {
-            Log.d(MainActivity.TAG, "Failed to start preview!");
+            Log.d(TAG, "Failed to start preview!");
+            e.printStackTrace();
         }
     }
 
@@ -55,7 +58,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             this.camera.setPreviewDisplay(this.holder);
             this.camera.startPreview();
         } catch (Exception e) {
-            Log.d(MainActivity.TAG, "Error restarting camera preview!");
+            Log.d(TAG, "Error restarting camera preview!");
+            e.printStackTrace();
         }
     }
 

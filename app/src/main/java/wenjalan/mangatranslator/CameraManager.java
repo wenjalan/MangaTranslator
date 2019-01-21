@@ -5,12 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +31,8 @@ public class CameraManager {
 
     private Camera camera = null;
 
+    public String filepath = null;
+
     // picture callback
     private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
         @Override
@@ -44,7 +44,7 @@ public class CameraManager {
             }
 
             // get the name
-            String filepath = pictureFile.getPath();
+            filepath = pictureFile.getPath();
 
             // write the data
             try {
@@ -72,6 +72,11 @@ public class CameraManager {
                 e.printStackTrace();
             }
             Log.d(TAG, "Wrote image to " + filepath);
+
+            // send to vision
+            VisionManager.findText(filepath);
+
+            // resume camera
             camera.startPreview();
         }
     };

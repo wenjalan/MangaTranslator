@@ -21,9 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 
-import static wenjalan.mangatranslator.Key.GOOGLE_API_KEY;
-
 public class VisionManager {
+
+    private static String API_KEY = "AIzaSyCHm_E5aK3YXOxkiLuFtOMzpqGSJu0glNo";
 
     private static final String TAG = "MT-VisionManager";
 
@@ -36,7 +36,7 @@ public class VisionManager {
                 null
         );
         builder.setVisionRequestInitializer(
-                new VisionRequestInitializer(GOOGLE_API_KEY)
+                new VisionRequestInitializer(API_KEY)
         );
         Vision vision = builder.build();
         return vision;
@@ -78,10 +78,6 @@ public class VisionManager {
 
                     // Log it
                     Log.d(TAG, "Text found: " + text.getText());
-
-                    // Translate it
-                    TranslationManager.translate(text.getText());
-
                 } catch (Exception e) {
                     Log.d(TAG, "Error finding text");
                     e.printStackTrace();

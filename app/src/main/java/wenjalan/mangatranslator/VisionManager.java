@@ -78,6 +78,9 @@ public class VisionManager {
 
                     // Log it
                     Log.d(TAG, "Text found: " + text.getText());
+
+                    // translate
+                    TranslationManager.translate(text.getText());
                 } catch (Exception e) {
                     Log.d(TAG, "Error finding text");
                     e.printStackTrace();

@@ -1,4 +1,4 @@
-package wenjalan.mangatranslator;
+package wenjalan.mangatranslator.cloud;
 
 public class Key {
 

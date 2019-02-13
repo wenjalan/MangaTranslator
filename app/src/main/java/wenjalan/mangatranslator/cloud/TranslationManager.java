@@ -1,4 +1,4 @@
-package wenjalan.mangatranslator;
+package wenjalan.mangatranslator.cloud;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -11,7 +11,9 @@ import com.google.api.services.translate.model.TranslationsListResponse;
 
 import java.util.Collections;
 
-import static wenjalan.mangatranslator.Key.GOOGLE_API_KEY;
+import wenjalan.mangatranslator.MainActivity;
+
+import static wenjalan.mangatranslator.cloud.Key.GOOGLE_API_KEY;
 
 public class TranslationManager {
 
@@ -36,7 +38,7 @@ public class TranslationManager {
         if (translate == null) {
             translate = getTranslate();
         }
-        Log.d(TAG, "Text to Translate:\n" + text);
+        // Log.d(TAG, "Text to Translate:\n" + text);
         // translate the text
         AsyncTask.execute(new Runnable() {
             @Override
@@ -47,12 +49,16 @@ public class TranslationManager {
                     list.setKey(GOOGLE_API_KEY);
                     list.setSource("ja");
                     final TranslationsListResponse response = list.execute();
-                    Log.d(TAG, "Translated text:\n" + response.getTranslations().get(0).getTranslatedText());
+                    String translated = response.getTranslations().get(0).getTranslatedText();
+                    // Log.d(TAG, "Translated text:\n" + translated);
+
+                    // return it to main
+                    MainActivity.onTranslationComplete(translated);
+
                 } catch (Exception e) {
                     Log.d(TAG, "Error translating text");
                     e.printStackTrace();
                 }
-
             }
         });
     }

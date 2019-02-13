@@ -1,4 +1,4 @@
-package wenjalan.mangatranslator;
+package wenjalan.mangatranslator.hardware;
 
 import android.content.Context;
 import android.hardware.Camera;

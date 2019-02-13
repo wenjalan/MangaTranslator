@@ -1,17 +1,30 @@
 package wenjalan.mangatranslator;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
+import wenjalan.mangatranslator.cloud.TranslationManager;
+import wenjalan.mangatranslator.cloud.VisionManager;
+import wenjalan.mangatranslator.hardware.CameraManager;
+import wenjalan.mangatranslator.hardware.CameraPreview;
+
+@SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity {
+
+    // the reference to this Activity instance
+    private static MainActivity MAIN;
 
     // viewfinder size scale
     public static final float VF_2_SCREEN_X = 0.5f;
@@ -31,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MAIN = this;
 
         // initialize camera
         initCamera();
@@ -60,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         // create the preview
         cameraPreview = new CameraPreview(this, camera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        FrameLayout preview = findViewById(R.id.camera_preview);
         preview.addView(cameraPreview);
     }
 
@@ -123,5 +137,40 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    // returns the Activity
+    public static MainActivity get() {
+        return MAIN;
+    }
+
+    // sets the translated text field
+    public void setTranslatedText(String text) {
+        TextView textView = findViewById(R.id.translation_text);
+        textView.setText(text);
+    }
+
+    // called by CameraManager when an image has been taken
+    public static void onCameraManagerCapture(String filepath) {
+        // send to vision
+        VisionManager.findText(filepath);
+        // log
+        Log.d(TAG, "Translating...");
+    }
+
+    // called by VisionManager when text detection is completed
+    public static void onVisionManagerComplete(String text) {
+        // send it to TranslationManager for translation
+        TranslationManager.translate(text);
+        // log
+        Log.d(TAG, "Found text:\n" + text);
+    }
+
+    // called by TranslationManager when text translation is completed
+    public static void onTranslationComplete(String translatedText) {
+        Log.d(TAG, "Translation Complete:\n" + translatedText);
+
+        // update the text window on screen
+        MainActivity.get().setTranslatedText(translatedText);
     }
 }

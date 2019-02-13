@@ -1,4 +1,4 @@
-package wenjalan.mangatranslator;
+package wenjalan.mangatranslator.hardware;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,11 +17,15 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import wenjalan.mangatranslator.MainActivity;
+import wenjalan.mangatranslator.cloud.VisionManager;
+
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 import static wenjalan.mangatranslator.MainActivity.VF_2_SCREEN_X;
 import static wenjalan.mangatranslator.MainActivity.VF_2_SCREEN_Y;
 
+@SuppressWarnings("deprecation")
 public class CameraManager {
 
     public static final String TAG = "MT-CameraManager";
@@ -71,13 +75,13 @@ public class CameraManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.d(TAG, "Wrote image to " + filepath);
-
-            // send to vision
-            VisionManager.findText(filepath);
+            // Log.d(TAG, "Wrote image to " + filepath);
 
             // resume camera
             camera.startPreview();
+
+            // send back to Main
+            MainActivity.onCameraManagerCapture(filepath);
         }
     };
 
@@ -135,7 +139,7 @@ public class CameraManager {
 
     private Bitmap cropImage(String filepath) {
         // log
-        Log.d(TAG, "Cropping image...");
+        // Log.d(TAG, "Cropping image...");
 
         Bitmap bitmap = BitmapFactory.decodeFile(filepath);
         int height = bitmap.getHeight();

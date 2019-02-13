@@ -1,10 +1,9 @@
-package wenjalan.mangatranslator;
+package wenjalan.mangatranslator.cloud;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
-import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.services.vision.v1.Vision;
 import com.google.api.services.vision.v1.VisionRequestInitializer;
@@ -20,6 +19,8 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
+
+import wenjalan.mangatranslator.MainActivity;
 
 public class VisionManager {
 
@@ -46,7 +47,7 @@ public class VisionManager {
         if (vision == null) {
             vision = getVision();
         }
-        Log.d(TAG, "Finding text...");
+        // Log.d(TAG, "Finding text...");
 
         AsyncTask.execute(new Runnable() {
             @Override
@@ -77,10 +78,10 @@ public class VisionManager {
                     TextAnnotation text = batchResponse.getResponses().get(0).getFullTextAnnotation();
 
                     // Log it
-                    Log.d(TAG, "Text found: " + text.getText());
+                    // Log.d(TAG, "Text found: " + text.getText());
 
-                    // translate
-                    TranslationManager.translate(text.getText());
+                    // send back to Main
+                    MainActivity.onVisionManagerComplete(text.getText());
                 } catch (Exception e) {
                     Log.d(TAG, "Error finding text");
                     e.printStackTrace();

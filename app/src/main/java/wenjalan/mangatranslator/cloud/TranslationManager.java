@@ -1,6 +1,7 @@
 package wenjalan.mangatranslator.cloud;
 
 import android.os.AsyncTask;
+import android.text.Html;
 import android.util.Log;
 
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -52,8 +53,11 @@ public class TranslationManager {
                     String translated = response.getTranslations().get(0).getTranslatedText();
                     // Log.d(TAG, "Translated text:\n" + translated);
 
+                    // reformat it to replace escape codes for ' and others
+                    String formatted = Html.fromHtml(translated).toString();
+
                     // return it to main
-                    MainActivity.onTranslationComplete(translated);
+                    MainActivity.onTranslationComplete(formatted);
 
                 } catch (Exception e) {
                     Log.d(TAG, "Error translating text");

@@ -3,9 +3,11 @@ package wenjalan.mangatranslator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
         // init view finder
         initViewfinder();
+
+        // init translation view
+        initTranslationView();
     }
 
     // camera init
@@ -110,6 +115,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // init translation textview
+    private void initTranslationView() {
+        // find it
+        TextView translationView = findViewById(R.id.translation_text);
+
+        // set the typeface
+        Typeface wildwords = Typeface.createFromAsset(getAssets(), "fonts/wildwords.ttf");
+        translationView.setTypeface(wildwords);
+
+        // hide the parent view for now
+        ConstraintLayout constraintLayout = (ConstraintLayout) translationView.getParent();
+        constraintLayout.setVisibility(View.INVISIBLE);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -147,7 +166,15 @@ public class MainActivity extends AppCompatActivity {
     // sets the translated text field
     public void setTranslatedText(String text) {
         TextView textView = findViewById(R.id.translation_text);
+
+        // set the visibility to visible if we haven't already
+        ConstraintLayout constraintLayout = (ConstraintLayout) textView.getParent();
+        if (constraintLayout.getVisibility() == View.INVISIBLE) {
+            constraintLayout.setVisibility(View.VISIBLE);
+        }
+
         textView.setText(text);
+        textView.requestLayout();
     }
 
     // called by CameraManager when an image has been taken
@@ -156,6 +183,8 @@ public class MainActivity extends AppCompatActivity {
         VisionManager.findText(filepath);
         // log
         Log.d(TAG, "Translating...");
+        // update text
+        MainActivity.get().setTranslatedText("Translating...");
     }
 
     // called by VisionManager when text detection is completed

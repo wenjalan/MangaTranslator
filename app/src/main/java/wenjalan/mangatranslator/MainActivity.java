@@ -8,6 +8,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     // capture button
     private void initCaptureButton() {
         // set the capture button listener
-        Button captureButton = findViewById(R.id.button_capture);
+        FloatingActionButton captureButton = findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         // log
         Log.d(TAG, "Translating...");
         // update text
-        MainActivity.get().setTranslatedText("Translating...");
+        MainActivity.get().setTranslatedText("Finding text...");
     }
 
     // called by VisionManager when text detection is completed
@@ -192,7 +193,8 @@ public class MainActivity extends AppCompatActivity {
         // send it to TranslationManager for translation
         TranslationManager.translate(text);
         // log
-        Log.d(TAG, "Found text:\n" + text);
+        Log.d(TAG, "Found text:\n" + text);// update text
+        MainActivity.get().setTranslatedText("Translating...");
     }
 
     // called by TranslationManager when text translation is completed

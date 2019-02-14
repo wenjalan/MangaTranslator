@@ -1,0 +1,4 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('1bpp-monochrome-bitmap.jar'))
+dependencies {
+}

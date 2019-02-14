@@ -18,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import wenjalan.mangatranslator.MainActivity;
-import wenjalan.mangatranslator.cloud.VisionManager;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
@@ -27,6 +26,9 @@ import static wenjalan.mangatranslator.MainActivity.VF_2_SCREEN_Y;
 
 @SuppressWarnings("deprecation")
 public class CameraManager {
+
+    // the amount to scale the image down by to allow for faster processing
+    protected static final int RESIZE_SCALE = 4;
 
     public static final String TAG = "MT-CameraManager";
     public static final String IMAGE_NAME = "capture.jpg";
@@ -62,15 +64,18 @@ public class CameraManager {
             }
 
             // write the cropped image
-            Bitmap cropped = cropImage(filepath);
+            Bitmap bmp = cropImage(filepath);
 
             // rotate it
-            cropped = rotateBitmap(cropped, 90);
+            bmp = rotateBitmap(bmp, 90);
+
+            // resize it
+            bmp = Bitmap.createScaledBitmap(bmp, bmp.getWidth() / RESIZE_SCALE, bmp.getHeight() / RESIZE_SCALE, false);
 
             // write it
             try {
                 FileOutputStream fos = new FileOutputStream(pictureFile);
-                cropped.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 fos.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -103,9 +108,10 @@ public class CameraManager {
         // set the camera to portrait
         camera.setDisplayOrientation(90);
 
-        // enable auto focus
+        // enable auto focus and black and white mode
         Camera.Parameters par = camera.getParameters();
         par.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        // par.setColorEffect(Camera.Parameters.EFFECT_MONO);
         camera.setParameters(par);
     }
 

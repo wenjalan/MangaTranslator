@@ -40,17 +40,15 @@ dependencies {
     implementation 'com.google.apis:google-api-services-vision:v1-rev357-1.22.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'commons-io:commons-io:2.6'
-
     // translate
-//    implementation ('com.google.cloud:google-cloud-translate:1.59.0') {
-//        exclude group: 'io.grpc', module: 'grpc-all'
-//        exclude group: 'com.google.protobuf', module: 'protobuf-java'
-//        exclude group: 'com.google.api-client', module: 'google-api-client-appengine'
-//    }
-    implementation ('com.google.apis:google-api-services-translate:v2-rev47-1.22.0') {
+    //    implementation ('com.google.cloud:google-cloud-translate:1.59.0') {
+    //        exclude group: 'io.grpc', module: 'grpc-all'
+    //        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    //        exclude group: 'com.google.api-client', module: 'google-api-client-appengine'
+    //    }
+    implementation('com.google.apis:google-api-services-translate:v2-rev47-1.22.0') {
         exclude group: 'com.google.guava'
     }
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

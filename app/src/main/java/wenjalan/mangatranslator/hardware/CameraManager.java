@@ -131,6 +131,7 @@ public class CameraManager {
         } catch (Exception e) {
             Log.d(TAG, "Failed to open camera!");
             e.printStackTrace();
+            System.exit(1);
         }
         return cam;
     }

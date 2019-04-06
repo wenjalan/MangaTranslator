@@ -81,7 +81,10 @@ public class VisionManager {
                     // Log.d(TAG, "Text found: " + text.getText());
 
                     // send back to Main
-                    MainActivity.onVisionManagerComplete(text.getText());
+                    if (text != null) {
+                        MainActivity.onVisionManagerComplete(text.getText());
+                    }
+
                 } catch (Exception e) {
                     Log.d(TAG, "Error finding text");
                     e.printStackTrace();

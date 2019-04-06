@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <android.support.design.widget.FloatingActionButton
+        <!-- <android.support.design.widget.FloatingActionButton
             android:id="@+id/button_capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" /> -->
 
         <FrameLayout
             android:id="@+id/camera_preview"
@@ -69,6 +69,7 @@
                 android:layout_marginEnd="32dp"
                 android:layout_marginBottom="8dp"
                 android:lineSpacingExtra="8sp"
+                android:text="Tap to Translate"
                 android:textAlignment="center"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"

@@ -43,11 +43,15 @@ public class MainActivity extends AppCompatActivity {
     private CameraManager cameraManager;
     private CameraPreview cameraPreview;
 
+    // whether or not we're currently translating something
+    public static boolean isTranslating;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MAIN = this;
+        isTranslating = false;
 
         // initialize camera
         initCamera();
@@ -87,11 +91,15 @@ public class MainActivity extends AppCompatActivity {
     // capture button
     private void initCaptureButton() {
         // set the capture button listener
-        FloatingActionButton captureButton = findViewById(R.id.button_capture);
-        captureButton.setOnClickListener(new View.OnClickListener() {
+        // FloatingActionButton captureButton = findViewById(R.id.button_capture);
+        View viewFinder = findViewById(R.id.box);
+        viewFinder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                camera.takePicture(null, null, cameraManager.getPictureCallback());
+                // if we're not already translating something, take a picture
+                if (!isTranslating) {
+                    camera.takePicture(null, null, cameraManager.getPictureCallback());
+                }
             }
         });
     }
@@ -126,8 +134,8 @@ public class MainActivity extends AppCompatActivity {
         translationView.setTypeface(wildwords);
 
         // hide the parent view for now
-        ConstraintLayout constraintLayout = (ConstraintLayout) translationView.getParent();
-        constraintLayout.setVisibility(View.INVISIBLE);
+//        ConstraintLayout constraintLayout = (ConstraintLayout) translationView.getParent();
+//        constraintLayout.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -180,6 +188,9 @@ public class MainActivity extends AppCompatActivity {
 
     // called by CameraManager when an image has been taken
     public static void onCameraManagerCapture(String filepath) {
+        // set translating to true
+        isTranslating = true;
+
         // send to vision
         VisionManager.findText(filepath);
         // log
@@ -203,5 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
         // update the text window on screen
         MainActivity.get().setTranslatedText(translatedText);
+
+        // set isTranslating
+        isTranslating = false;
     }
 }

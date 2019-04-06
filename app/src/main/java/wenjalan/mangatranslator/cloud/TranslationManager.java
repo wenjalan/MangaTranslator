@@ -62,6 +62,8 @@ public class TranslationManager {
                 } catch (Exception e) {
                     Log.d(TAG, "Error translating text");
                     e.printStackTrace();
+                    MainActivity.get().setTranslatedText("Error translating text");
+                    MainActivity.onError();
                 }
             }
         });

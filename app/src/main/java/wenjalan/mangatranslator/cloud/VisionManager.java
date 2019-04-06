@@ -89,6 +89,7 @@ public class VisionManager {
                     Log.d(TAG, "Error finding text");
                     e.printStackTrace();
                     MainActivity.get().setTranslatedText("No text found");
+                    MainActivity.onError();
                 }
             }
         });

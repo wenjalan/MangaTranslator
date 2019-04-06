@@ -218,4 +218,11 @@ public class MainActivity extends AppCompatActivity {
         // set isTranslating
         isTranslating = false;
     }
+
+    // called when an error happens
+    public static void onError() {
+        // set translating to false
+        isTranslating = false;
+    }
+
 }

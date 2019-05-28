@@ -24,7 +24,8 @@ import wenjalan.mangatranslator.MainActivity;
 
 public class VisionManager {
 
-    private static String API_KEY = "AIzaSyCHm_E5aK3YXOxkiLuFtOMzpqGSJu0glNo";
+    // do not do this
+    private static String API_KEY = "";
 
     private static final String TAG = "MT-VisionManager";
 
